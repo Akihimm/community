@@ -1,12 +1,32 @@
 package life.mingming.community.Controller;
 
+import life.mingming.community.mapper.UserMapper;
+import life.mingming.community.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 public class IndexController {
+    @Autowired
+     private UserMapper userMapper;
     @GetMapping("/")
-       public String index(){return "index";}
+       public String index(HttpServletRequest request){
+        for (Cookie cookie : request.getCookies()) {  //这里的这个逻辑只是用来保证持久化登录也就是下一次访问主页面不需要再次登录
+            if(cookie.getName().equals("token")){
+                String token = cookie.getValue();
+                User user= userMapper.findByToken(token);
+                if(user!=null){
+                      request.getSession().setAttribute("user",user);
+                }
+            }
+        }
+
+
+        return "index";}
 }
