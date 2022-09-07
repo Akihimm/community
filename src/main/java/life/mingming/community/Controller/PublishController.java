@@ -1,15 +1,16 @@
 package life.mingming.community.Controller;
-
 import life.mingming.community.mapper.QuestionMapper;
 import life.mingming.community.mapper.UserMapper;
 import life.mingming.community.model.Question;
 import life.mingming.community.model.User;
+import life.mingming.community.service.QuestionService;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -19,12 +20,24 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class PublishController {
     @Autowired
+    QuestionService questionService;
+    @Autowired
     private UserMapper userMapper;
     @Autowired
     private QuestionMapper questionMapper;
     private Question question;
     private Cookie[] cookies;
+    @GetMapping("/publish/{id}")
+    public String edit(@PathVariable(name = "id") Integer id,
+                       Model model){
 
+        Question question1 = questionMapper.selectByPrimaryKey(id);
+        model.addAttribute("title",question1.getTitle());
+        model.addAttribute("description",question1.getDescription());
+        model.addAttribute("tag",question1.getTag());
+        model.addAttribute("id",question1.getId());
+        return "publish";
+    }
     @GetMapping("/publish")
     public String publish(){
 
@@ -35,6 +48,7 @@ public class PublishController {
             @RequestParam ("title") String title,
             @RequestParam ("description")String description,
             @RequestParam ("tag")   String tag,
+            @RequestParam(value = "id", required = false) Integer id,
             HttpServletRequest request,
             Model model
     ){
@@ -59,9 +73,8 @@ public class PublishController {
         question.setDescription(description);
         question.setTag(tag);
         question.setCreator(user.getId());
-        question.setGmtCreate(System.currentTimeMillis());
-        question.setGmtModified(question.getGmtModified());
-        questionMapper.create(question);
+        question.setId(id);
+        questionService.createOrUpdate(question);
         return "redirect:/";
     }
 }

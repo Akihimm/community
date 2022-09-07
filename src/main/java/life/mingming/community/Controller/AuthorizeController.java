@@ -59,7 +59,6 @@ public class AuthorizeController {
             user.setGmtCreate(user.getGmtModified());
             user.setAvatarUrl(githubUser.getAvatar_url());
             userService.createOrUpdate(user);
-            userMapper.insert(user);
             response.addCookie(new Cookie("token",token)); //将这个作为账户此次登录的唯一表示存在数据库还有cookie里边
                 return "redirect:/";
         }else {
