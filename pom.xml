@@ -107,6 +107,7 @@
                     <url>jdbc:h2:~/mingming</url>
                     <user>mingming</user>
                     <password>123456</password>
+                    <schemas>community</schemas>
                     <baselineOnMigrate>true</baselineOnMigrate>
                 </configuration>
                 <dependencies>

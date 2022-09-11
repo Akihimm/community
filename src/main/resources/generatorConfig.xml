@@ -31,6 +31,7 @@
 
         <table  tableName="github_user" domainObjectName="User" ></table> <!--domainObjectName这个的意思是实例化的对象-->
         <table  tableName="question" domainObjectName="Question" ></table>
+        <table tableName="Comment" domainObjectName="Comment"></table>
 
     </context>
 </generatorConfiguration>

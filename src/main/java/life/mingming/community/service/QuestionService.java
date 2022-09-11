@@ -1,6 +1,9 @@
 package life.mingming.community.service;
 import life.mingming.community.dto.PaginationDTO;
 import life.mingming.community.dto.QuestionDTO;
+import life.mingming.community.exception.CustomizeErrorCode;
+import life.mingming.community.exception.CustomizeException;
+import life.mingming.community.mapper.QuestionExtMapper;
 import life.mingming.community.mapper.QuestionMapper;
 import life.mingming.community.mapper.UserMapper;
 import life.mingming.community.model.Question;
@@ -16,6 +19,8 @@ import java.util.List;
 
 @Service
 public class QuestionService {
+    @Autowired
+    QuestionExtMapper questionExtMapper;
     @Autowired
        private QuestionMapper questionMapper;
     @Autowired
@@ -52,7 +57,7 @@ public class QuestionService {
         return paginationDTO;
     }
 
-    public PaginationDTO list(Integer userId, Integer page, Integer size) {
+    public PaginationDTO list(Long userId, Integer page, Integer size) {
         PaginationDTO paginationDTO=new PaginationDTO();
 
         QuestionExample questionExample=new QuestionExample();
@@ -92,8 +97,11 @@ public class QuestionService {
         return paginationDTO;
     }
 
-    public QuestionDTO getById(Integer id) {
+    public QuestionDTO getById(Long id) {
         Question question=questionMapper.selectByPrimaryKey(id);
+        if(question==null){
+            throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
+        }
         QuestionDTO questionDTO=new QuestionDTO();
         BeanUtils.copyProperties(question,questionDTO);
         User user= userMapper.selectByPrimaryKey(question.getCreator());
@@ -106,6 +114,9 @@ public class QuestionService {
         if(question.getId()==null){
             question.setGmtCreate(System.currentTimeMillis());
             question.setGmtModified(question.getGmtModified());
+            question.setViewCount(0);
+            question.setLikeCount(0);
+            question.setCommentCount(0);
             questionMapper.insertSelective(question);
         }else {
             //update
@@ -118,7 +129,17 @@ public class QuestionService {
             QuestionExample questionExample=new QuestionExample();
             questionExample.createCriteria()
                             .andIdEqualTo(question.getId());
-            questionMapper.updateByExampleSelective(updateQuestion,questionExample);
+            int updated = questionMapper.updateByExampleSelective(updateQuestion, questionExample);
+            if(updated!=1){
+                throw new CustomizeException(CustomizeErrorCode.QUESTION_NOT_FOUND);
+            }
         }
+    }
+
+    public void incView(Long id) {
+        Question question=new Question();
+        question.setId(id);
+        question.setViewCount(1);
+       questionExtMapper.incView(question);
     }
 }

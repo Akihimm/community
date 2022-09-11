@@ -28,7 +28,7 @@ public class PublishController {
     private Question question;
     private Cookie[] cookies;
     @GetMapping("/publish/{id}")
-    public String edit(@PathVariable(name = "id") Integer id,
+    public String edit(@PathVariable(name = "id") Long id,
                        Model model){
 
         Question question1 = questionMapper.selectByPrimaryKey(id);
@@ -48,7 +48,7 @@ public class PublishController {
             @RequestParam ("title") String title,
             @RequestParam ("description")String description,
             @RequestParam ("tag")   String tag,
-            @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "id", required = false) Long id,
             HttpServletRequest request,
             Model model
     ){
